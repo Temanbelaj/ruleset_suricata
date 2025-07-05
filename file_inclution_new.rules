@@ -1,0 +1,84 @@
+# File Inclusion Detection Rules
+# Created for Suricata IDS/IPS
+# Total Rules: 50
+# SID Range: 8000-8049
+
+# Local File Inclusion (LFI) Attacks - Linux/Unix Path Traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Unix etc/passwd"; flow:established,to_server; http.uri; content:"../../../etc/passwd"; fast_pattern; classtype:web-application-attack; sid:8000; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Unix etc/passwd Inbound"; flow:established,to_server; http.uri; content:"../../../etc/passwd"; fast_pattern; classtype:web-application-attack; sid:8001; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Unix etc/shadow"; flow:established,to_server; http.uri; content:"../../../etc/shadow"; fast_pattern; classtype:web-application-attack; sid:8002; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Unix etc/shadow Inbound"; flow:established,to_server; http.uri; content:"../../../etc/shadow"; fast_pattern; classtype:web-application-attack; sid:8003; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Unix proc/version"; flow:established,to_server; http.uri; content:"../../../proc/version"; fast_pattern; classtype:web-application-attack; sid:8004; rev:1;)
+
+# Local File Inclusion (LFI) Attacks - Windows Path Traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Windows boot.ini"; flow:established,to_server; http.uri; content:"..\\..\\..\\boot.ini"; fast_pattern; classtype:web-application-attack; sid:8005; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Windows boot.ini Inbound"; flow:established,to_server; http.uri; content:"..\\..\\..\\boot.ini"; fast_pattern; classtype:web-application-attack; sid:8006; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Windows system32 config"; flow:established,to_server; http.uri; content:"..\\..\\..\\windows\\system32\\config\\system"; fast_pattern; classtype:web-application-attack; sid:8007; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Windows system32 config Inbound"; flow:established,to_server; http.uri; content:"..\\..\\..\\windows\\system32\\config\\system"; fast_pattern; classtype:web-application-attack; sid:8008; rev:1;)
+
+# URL Encoded Path Traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - URL Encoded Path Traversal"; flow:established,to_server; http.uri; content:"%2e%2e%2f"; fast_pattern; classtype:web-application-attack; sid:8009; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - URL Encoded Path Traversal Inbound"; flow:established,to_server; http.uri; content:"%2e%2e%2f"; fast_pattern; classtype:web-application-attack; sid:8010; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Double URL Encoded"; flow:established,to_server; http.uri; content:"%252e%252e%252f"; fast_pattern; classtype:web-application-attack; sid:8011; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Double URL Encoded Inbound"; flow:established,to_server; http.uri; content:"%252e%252e%252f"; fast_pattern; classtype:web-application-attack; sid:8012; rev:1;)
+
+# Unicode/UTF-8 Encoded Path Traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Unicode Path Traversal"; flow:established,to_server; http.uri; content:"%c0%ae%c0%ae%c0%af"; fast_pattern; classtype:web-application-attack; sid:8013; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Unicode Path Traversal Inbound"; flow:established,to_server; http.uri; content:"%c0%ae%c0%ae%c0%af"; fast_pattern; classtype:web-application-attack; sid:8014; rev:1;)
+
+# Remote File Inclusion (RFI) Attacks
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP RFI Attempt - HTTP URL Include"; flow:established,to_server; http.uri; content:"http://"; fast_pattern; pcre:"/include.*?http:\/\//i"; classtype:web-application-attack; sid:8015; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP RFI Attempt - HTTP URL Include Inbound"; flow:established,to_server; http.uri; content:"http://"; fast_pattern; pcre:"/include.*?http:\/\//i"; classtype:web-application-attack; sid:8016; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP RFI Attempt - HTTPS URL Include"; flow:established,to_server; http.uri; content:"https://"; fast_pattern; pcre:"/include.*?https:\/\//i"; classtype:web-application-attack; sid:8017; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP RFI Attempt - HTTPS URL Include Inbound"; flow:established,to_server; http.uri; content:"https://"; fast_pattern; pcre:"/include.*?https:\/\//i"; classtype:web-application-attack; sid:8018; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP RFI Attempt - FTP URL Include"; flow:established,to_server; http.uri; content:"ftp://"; fast_pattern; pcre:"/include.*?ftp:\/\//i"; classtype:web-application-attack; sid:8019; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP RFI Attempt - FTP URL Include Inbound"; flow:established,to_server; http.uri; content:"ftp://"; fast_pattern; pcre:"/include.*?ftp:\/\//i"; classtype:web-application-attack; sid:8020; rev:1;)
+
+# PHP Wrapper Attacks
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - PHP Data Wrapper"; flow:established,to_server; http.uri; content:"data://"; fast_pattern; classtype:web-application-attack; sid:8021; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - PHP Data Wrapper Inbound"; flow:established,to_server; http.uri; content:"data://"; fast_pattern; classtype:web-application-attack; sid:8022; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - PHP Filter Wrapper"; flow:established,to_server; http.uri; content:"php://filter"; fast_pattern; classtype:web-application-attack; sid:8023; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - PHP Filter Wrapper Inbound"; flow:established,to_server; http.uri; content:"php://filter"; fast_pattern; classtype:web-application-attack; sid:8024; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - PHP Input Wrapper"; flow:established,to_server; http.uri; content:"php://input"; fast_pattern; classtype:web-application-attack; sid:8025; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - PHP Input Wrapper Inbound"; flow:established,to_server; http.uri; content:"php://input"; fast_pattern; classtype:web-application-attack; sid:8026; rev:1;)
+
+# Log Poisoning Attacks
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Apache Access Log"; flow:established,to_server; http.uri; content:"/var/log/apache"; fast_pattern; classtype:web-application-attack; sid:8027; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Apache Access Log Inbound"; flow:established,to_server; http.uri; content:"/var/log/apache"; fast_pattern; classtype:web-application-attack; sid:8028; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - SSH Auth Log"; flow:established,to_server; http.uri; content:"/var/log/auth.log"; fast_pattern; classtype:web-application-attack; sid:8029; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - SSH Auth Log Inbound"; flow:established,to_server; http.uri; content:"/var/log/auth.log"; fast_pattern; classtype:web-application-attack; sid:8030; rev:1;)
+
+# Null Byte Injection
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Null Byte Injection"; flow:established,to_server; http.uri; content:"%00"; fast_pattern; classtype:web-application-attack; sid:8031; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Null Byte Injection Inbound"; flow:established,to_server; http.uri; content:"%00"; fast_pattern; classtype:web-application-attack; sid:8032; rev:1;)
+
+# POST Request File Inclusion
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - POST Path Traversal"; flow:established,to_server; http.method; content:"POST"; http.request_body; content:"../../../"; fast_pattern; classtype:web-application-attack; sid:8033; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - POST Path Traversal Inbound"; flow:established,to_server; http.method; content:"POST"; http.request_body; content:"../../../"; fast_pattern; classtype:web-application-attack; sid:8034; rev:1;)
+
+# Advanced Evasion Techniques
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Mixed Path Separators"; flow:established,to_server; http.uri; content:"..\\../"; fast_pattern; classtype:web-application-attack; sid:8035; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Mixed Path Separators Inbound"; flow:established,to_server; http.uri; content:"..\\../"; fast_pattern; classtype:web-application-attack; sid:8036; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Dot Segment Bypass"; flow:established,to_server; http.uri; content:"./"; fast_pattern; pcre:"/(\\.\\/)+(\\.\\.\\/)*/"; classtype:web-application-attack; sid:8037; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Dot Segment Bypass Inbound"; flow:established,to_server; http.uri; content:"./"; fast_pattern; pcre:"/(\\.\\/)+(\\.\\.\\/)*/"; classtype:web-application-attack; sid:8038; rev:1;)
+
+# Common Web Application Files
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Config File Access"; flow:established,to_server; http.uri; content:"config"; fast_pattern; pcre:"/\\.\\..*config\\.(php|ini|xml|conf)$/i"; classtype:web-application-attack; sid:8039; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Config File Access Inbound"; flow:established,to_server; http.uri; content:"config"; fast_pattern; pcre:"/\\.\\..*config\\.(php|ini|xml|conf)$/i"; classtype:web-application-attack; sid:8040; rev:1;)
+
+# Recent Attack Patterns (2023-2024)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Container Escape"; flow:established,to_server; http.uri; content:"../../../proc/self/root"; fast_pattern; classtype:web-application-attack; sid:8041; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Container Escape Inbound"; flow:established,to_server; http.uri; content:"../../../proc/self/root"; fast_pattern; classtype:web-application-attack; sid:8042; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - Cloud Metadata"; flow:established,to_server; http.uri; content:"169.254.169.254"; fast_pattern; classtype:web-application-attack; sid:8043; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - Cloud Metadata Inbound"; flow:established,to_server; http.uri; content:"169.254.169.254"; fast_pattern; classtype:web-application-attack; sid:8044; rev:1;)
+
+# Advanced PHP Techniques
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP LFI Attempt - PHP Session Files"; flow:established,to_server; http.uri; content:"/tmp/sess_"; fast_pattern; classtype:web-application-attack; sid:8045; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP LFI Attempt - PHP Session Files Inbound"; flow:established,to_server; http.uri; content:"/tmp/sess_"; fast_pattern; classtype:web-application-attack; sid:8046; rev:1;)
+
+# Email and User Agent Based RFI
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"HTTP RFI Attempt - Suspicious User Agent"; flow:established,to_server; http.user_agent; content:"include("; fast_pattern; classtype:web-application-attack; sid:8047; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP RFI Attempt - Suspicious User Agent Inbound"; flow:established,to_server; http.user_agent; content:"include("; fast_pattern; classtype:web-application-attack; sid:8048; rev:1;)
+
+# Generic File Inclusion Pattern Detection
+alert http any any -> any any (msg:"HTTP File Inclusion - Generic Pattern Detection"; flow:established,to_server; http.uri; pcre:"/[?&](file|page|include|dir|folder|path|document|root|pg)=[\\.\/\\\\%]/i"; classtype:web-application-attack; sid:8049; rev:1;)

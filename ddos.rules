@@ -1,0 +1,97 @@
+# DDoS Detection Ruleset
+# SID Range: 10-50
+# Author: Custom Ruleset
+# Description: Comprehensive DDoS attack detection rules
+
+# TCP-based DDoS Attacks
+alert tcp any any -> any any (msg:"DDOS TCP SYN Flood Attack"; flags:S; threshold:type both,track by_dst,count 100,seconds 10; sid:10; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP ACK Flood Attack"; flags:A; threshold:type both,track by_dst,count 200,seconds 10; sid:11; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP RST Flood Attack"; flags:R; threshold:type both,track by_dst,count 150,seconds 10; sid:12; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP FIN Flood Attack"; flags:F; threshold:type both,track by_dst,count 150,seconds 10; sid:13; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP PSH-ACK Flood Attack"; flags:PA; threshold:type both,track by_dst,count 200,seconds 10; sid:14; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP Christmas Tree Attack"; flags:FPU; threshold:type both,track by_dst,count 50,seconds 10; sid:15; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP Null Scan Attack"; flags:!FSRPAU; threshold:type both,track by_dst,count 100,seconds 10; sid:16; rev:1; classtype:denial-of-service;)
+
+# UDP-based DDoS Attacks
+alert udp any any -> any any (msg:"DDOS UDP Flood Attack"; threshold:type both,track by_dst,count 300,seconds 10; sid:17; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 53 (msg:"DDOS DNS Amplification Attack"; content:"|01 00 00 01|"; offset:2; depth:4; threshold:type both,track by_dst,count 100,seconds 10; sid:18; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 123 (msg:"DDOS NTP Amplification Attack"; content:"|17|"; offset:0; depth:1; threshold:type both,track by_dst,count 50,seconds 10; sid:19; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 1900 (msg:"DDOS SSDP Amplification Attack"; content:"M-SEARCH"; threshold:type both,track by_dst,count 50,seconds 10; sid:20; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 161 (msg:"DDOS SNMP Amplification Attack"; content:"|30|"; offset:0; depth:1; threshold:type both,track by_dst,count 50,seconds 10; sid:21; rev:1; classtype:denial-of-service;)
+
+# ICMP-based DDoS Attacks
+alert icmp any any -> any any (msg:"DDOS ICMP Flood Attack"; itype:8; threshold:type both,track by_dst,count 200,seconds 10; sid:22; rev:1; classtype:denial-of-service;)
+
+alert icmp any any -> any any (msg:"DDOS ICMP Smurf Attack"; itype:8; threshold:type both,track by_src,count 50,seconds 10; sid:23; rev:1; classtype:denial-of-service;)
+
+alert icmp any any -> any any (msg:"DDOS ICMP Fraggle Attack"; itype:0; threshold:type both,track by_dst,count 100,seconds 10; sid:24; rev:1; classtype:denial-of-service;)
+
+# HTTP-based DDoS Attacks
+alert http any any -> any any (msg:"DDOS HTTP GET Flood Attack"; http.method; content:"GET"; threshold:type both,track by_dst,count 500,seconds 10; sid:25; rev:1; classtype:denial-of-service;)
+
+alert http any any -> any any (msg:"DDOS HTTP POST Flood Attack"; http.method; content:"POST"; threshold:type both,track by_dst,count 300,seconds 10; sid:26; rev:1; classtype:denial-of-service;)
+
+alert http any any -> any any (msg:"DDOS HTTP Slowloris Attack"; http.header; content:"Connection: keep-alive"; threshold:type both,track by_src,count 100,seconds 60; sid:27; rev:1; classtype:denial-of-service;)
+
+alert http any any -> any any (msg:"DDOS HTTP R.U.D.Y Attack"; http.method; content:"POST"; http.header; content:"Content-Length:"; threshold:type both,track by_src,count 50,seconds 60; sid:28; rev:1; classtype:denial-of-service;)
+
+# Advanced DDoS Detection
+alert tcp any any -> any any (msg:"DDOS TCP Connection Exhaustion"; flags:S; threshold:type both,track by_dst,count 1000,seconds 30; sid:29; rev:1; classtype:denial-of-service;)
+
+alert ip any any -> any any (msg:"DDOS High Packet Rate from Single Source"; threshold:type both,track by_src,count 2000,seconds 10; sid:30; rev:1; classtype:denial-of-service;)
+
+alert ip any any -> any any (msg:"DDOS Bandwidth Exhaustion Attack"; dsize:>1400; threshold:type both,track by_dst,count 500,seconds 10; sid:31; rev:1; classtype:denial-of-service;)
+
+# Application Layer DDoS
+alert tcp any any -> any 80 (msg:"DDOS HTTP CC Attack"; flow:established,to_server; content:"GET"; http_method; threshold:type both,track by_src,count 200,seconds 10; sid:32; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 443 (msg:"DDOS HTTPS Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 300,seconds 10; sid:33; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 21 (msg:"DDOS FTP Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 100,seconds 10; sid:34; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 22 (msg:"DDOS SSH Brute Force Attack"; flow:established,to_server; threshold:type both,track by_dst,count 50,seconds 10; sid:35; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 25 (msg:"DDOS SMTP Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 100,seconds 10; sid:36; rev:1; classtype:denial-of-service;)
+
+# Fragmentation-based DDoS
+alert ip any any -> any any (msg:"DDOS IP Fragmentation Attack"; fragbits:M+; threshold:type both,track by_dst,count 100,seconds 10; sid:37; rev:1; classtype:denial-of-service;)
+
+alert ip any any -> any any (msg:"DDOS Teardrop Attack"; fragbits:M; fragoffset:>0; threshold:type both,track by_dst,count 50,seconds 10; sid:38; rev:1; classtype:denial-of-service;)
+
+# Protocol-specific DDoS
+alert tcp any any -> any 3389 (msg:"DDOS RDP Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 50,seconds 10; sid:39; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 514 (msg:"DDOS Syslog Flood Attack"; threshold:type both,track by_dst,count 200,seconds 10; sid:40; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 1433 (msg:"DDOS MSSQL Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 100,seconds 10; sid:41; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any 3306 (msg:"DDOS MySQL Flood Attack"; flow:established,to_server; threshold:type both,track by_dst,count 100,seconds 10; sid:42; rev:1; classtype:denial-of-service;)
+
+# Volumetric DDoS Detection
+alert ip any any -> any any (msg:"DDOS Large Packet Size Attack"; dsize:>9000; threshold:type both,track by_dst,count 100,seconds 10; sid:43; rev:1; classtype:denial-of-service;)
+
+alert ip any any -> any any (msg:"DDOS Distributed Attack Pattern"; threshold:type both,track by_dst,count 50,seconds 5; sid:44; rev:1; classtype:denial-of-service;)
+
+# Reflection/Amplification DDoS
+alert udp any any -> any 19 (msg:"DDOS CharGen Amplification Attack"; threshold:type both,track by_dst,count 50,seconds 10; sid:45; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 7 (msg:"DDOS Echo Amplification Attack"; threshold:type both,track by_dst,count 100,seconds 10; sid:46; rev:1; classtype:denial-of-service;)
+
+alert udp any any -> any 389 (msg:"DDOS LDAP Amplification Attack"; threshold:type both,track by_dst,count 50,seconds 10; sid:47; rev:1; classtype:denial-of-service;)
+
+# Advanced Evasion DDoS
+alert tcp any any -> any any (msg:"DDOS TCP Window Size Manipulation"; window:0; threshold:type both,track by_dst,count 100,seconds 10; sid:48; rev:1; classtype:denial-of-service;)
+
+alert ip any any -> any any (msg:"DDOS IP Options Abuse"; ipopts:any; threshold:type both,track by_dst,count 100,seconds 10; sid:49; rev:1; classtype:denial-of-service;)
+
+alert tcp any any -> any any (msg:"DDOS TCP Sequence Prediction Attack"; seq:0; threshold:type both,track by_dst,count 100,seconds 10; sid:50; rev:1; classtype:denial-of-service;)

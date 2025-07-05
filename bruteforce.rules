@@ -1,0 +1,33 @@
+# =============================================================================
+# BRUTE FORCE ATTACK RULES (SID: 2000-2999)
+# =============================================================================
+
+# SSH Brute Force
+alert tcp any any -> $HOME_NET 22 (msg:"BRUTE FORCE SSH Login Attempt"; flow:to_server,established; content:"SSH-"; depth:4; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2001; rev:1;)
+
+# FTP Brute Force
+alert tcp any any -> $HOME_NET 21 (msg:"BRUTE FORCE FTP Login Attempt"; flow:to_server,established; content:"USER "; nocase; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2002; rev:1;)
+
+# Telnet Brute Force
+alert tcp any any -> $HOME_NET 23 (msg:"BRUTE FORCE Telnet Login Attempt"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2003; rev:1;)
+
+# HTTP Basic Auth Brute Force
+alert http any any -> $HOME_NET any (msg:"BRUTE FORCE HTTP Basic Authentication"; http.header; content:"Authorization|3a| Basic"; nocase; threshold:type limit, track by_src, count 10, seconds 60; classtype:web-application-attack; sid:2004; rev:1;)
+
+# SMTP Auth Brute Force
+alert tcp any any -> $HOME_NET [25,587,465] (msg:"BRUTE FORCE SMTP Authentication"; flow:to_server,established; content:"AUTH "; nocase; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2005; rev:1;)
+
+# POP3 Brute Force
+alert tcp any any -> $HOME_NET [110,995] (msg:"BRUTE FORCE POP3 Login Attempt"; flow:to_server,established; content:"USER "; nocase; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2006; rev:1;)
+
+# IMAP Brute Force
+alert tcp any any -> $HOME_NET [143,993] (msg:"BRUTE FORCE IMAP Login Attempt"; flow:to_server,established; content:" LOGIN "; nocase; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2007; rev:1;)
+
+# RDP Brute Force
+alert tcp any any -> $HOME_NET 3389 (msg:"BRUTE FORCE RDP Login Attempt"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2008; rev:1;)
+
+# MySQL Brute Force
+alert tcp any any -> $HOME_NET 3306 (msg:"BRUTE FORCE MySQL Login Attempt"; flow:to_server,established; threshold:type limit, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:2009; rev:1;)
+
+# WordPress Admin Brute Force
+alert http any any -> $HOME_NET any (msg:"BRUTE FORCE WordPress Admin Login"; http.uri; content:"/wp-admin/"; nocase; http.method; content:"POST"; threshold:type limit, track by_src, count 10, seconds 60; classtype:web-application-attack; sid:2010; rev:1;)

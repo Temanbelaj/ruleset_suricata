@@ -1,0 +1,33 @@
+# =============================================================================
+# SQL INJECTION RULES (SID: 4000-4999)
+# =============================================================================
+
+# Basic SQL Injection - UNION
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION UNION Attack Detected"; http.uri; content:" union "; nocase; classtype:web-application-attack; sid:4001; rev:1;)
+
+# SQL Injection - OR 1=1
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION OR 1=1 Attack"; http.uri; content:" or 1=1"; nocase; classtype:web-application-attack; sid:4002; rev:1;)
+
+# SQL Injection - SELECT Statement
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION SELECT Statement"; http.uri; content:" select "; nocase; content:" from "; nocase; distance:0; within:50; classtype:web-application-attack; sid:4003; rev:1;)
+
+# SQL Injection - DROP TABLE
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION DROP TABLE Attack"; http.uri; content:" drop table"; nocase; classtype:web-application-attack; sid:4004; rev:1;)
+
+# SQL Injection - INSERT Statement
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION INSERT Statement"; http.uri; content:" insert into"; nocase; classtype:web-application-attack; sid:4005; rev:1;)
+
+# SQL Injection - UPDATE Statement
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION UPDATE Statement"; http.uri; content:" update "; nocase; content:" set "; nocase; distance:0; within:50; classtype:web-application-attack; sid:4006; rev:1;)
+
+# SQL Injection - DELETE Statement
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION DELETE Statement"; http.uri; content:" delete from"; nocase; classtype:web-application-attack; sid:4007; rev:1;)
+
+# SQL Injection - Information Schema
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION Information Schema Access"; http.uri; content:"information_schema"; nocase; classtype:web-application-attack; sid:4008; rev:1;)
+
+# SQL Injection - Comment Injection
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION Comment Injection"; http.uri; pcre:"/(\-\-|\/\*|\*\/)/"; classtype:web-application-attack; sid:4009; rev:1;)
+
+# SQL Injection via POST
+alert http any any -> $HOME_NET any (msg:"SQL INJECTION in POST Data"; http.request_body; content:" union select"; nocase; classtype:web-application-attack; sid:4010; rev:1;)

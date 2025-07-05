@@ -1,0 +1,70 @@
+# Suricata Ruleset for DDoS Detection
+# Targeting endpoint attacks from local and external networks
+# Optimized for fast detection with fast_pattern and threshold
+# SID starts from 6000
+
+# === TCP-Based DDoS Attacks (SYN Flood, ACK Flood, etc.) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP SYN Flood Attempt"; flow:to_server; flags:S,12; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6000; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP SYN Flood"; flow:to_server; flags:S,12; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6001; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP ACK Flood Attempt"; flow:to_server; flags:A,12; threshold:type threshold, track by_dst, count 200, seconds 10; classtype:denial-service; sid:6002; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP ACK Flood"; flow:to_server; flags:A,12; threshold:type threshold, track by_dst, count 200, seconds 10; classtype:denial-service; sid:6003; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP RST Flood Attempt"; flow:to_server; flags:R,12; threshold:type threshold, track by_dst, count 150, seconds 10; classtype:denial-service; sid:6004; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP RST Flood"; flow:to_server; flags:R,12; threshold:type threshold, track by_dst, count 150, seconds 10; classtype:denial-service; sid:6005; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP Zero Window Attack"; flow:to_server,established; window:0; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6006; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP Zero Window Attack"; flow:to_server,established; window:0; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6007; rev:1;)
+
+# === UDP-Based DDoS Attacks (UDP Flood, Amplification) ===
+alert udp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS UDP Flood Attempt"; threshold:type threshold, track by_dst, count 500, seconds 10; classtype:denial-service; sid:6008; rev:1;)
+alert udp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal UDP Flood"; threshold:type threshold, track by_dst, count 500, seconds 10; classtype:denial-service; sid:6009; rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 123 (msg:"DDOS NTP Amplification Attack"; content:"|01|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6010; rev:1;)
+alert udp $HOME_NET any -> $HOME_NET 123 (msg:"DDOS Internal NTP Amplification"; content:"|01|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6011; rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 1900 (msg:"DDOS SSDP Amplification Attack"; content:"M-SEARCH"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6012; rev:1;)
+alert udp $HOME_NET any -> $HOME_NET 1900 (msg:"DDOS Internal SSDP Amplification"; content:"M-SEARCH"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6013; rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"DDOS SNMP Amplification Attack"; content:"|30|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6014; rev:1;)
+alert udp $HOME_NET any -> $HOME_NET 161 (msg:"DDOS Internal SNMP Amplification"; content:"|30|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6015; rev:1;)
+
+# === ICMP-Based DDoS Attacks ===
+alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS ICMP Flood Attempt"; itype:8; threshold:type threshold, track by_dst, count 200, seconds 10; classtype:denial-service; sid:6016; rev:1;)
+alert icmp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal ICMP Flood"; itype:8; threshold:type threshold, track by_dst, count 200, seconds 10; classtype:denial-service; sid:6017; rev:1;)
+alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS ICMP Smurf Attack"; itype:8; icode:0; content:"|00 00|"; fast_pattern; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6018; rev:1;)
+alert icmp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal ICMP Smurf Attack"; itype:8; icode:0; content:"|00 00|"; fast_pattern; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6019; rev:1;)
+
+# === HTTP-Based DDoS Attacks (HTTP Flood, Slowloris) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP Flood Attempt"; flow:to_server,established; http.method; content:"GET"; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6020; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP Flood"; flow:to_server,established; http.method; content:"GET"; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6021; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS Slowloris Attack"; flow:to_server,established; http.header; content:"Connection: keep-alive"; content:"|0d 0a|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 60; classtype:denial-service; sid:6022; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal Slowloris Attack"; flow:to_server,established; http.header; content:"Connection: keep-alive"; content:"|0d 0a|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 60; classtype:denial-service; sid:6023; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP POST Flood"; flow:to_server,established; http.method; content:"POST"; threshold:type threshold, track by_dst, count 80, seconds 10; classtype:denial-service; sid:6024; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP POST Flood"; flow:to_server,established; http.method; content:"POST"; threshold:type threshold, track by_dst, count 80, seconds 10; classtype:denial-service; sid:6025; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP Slow POST Attack"; flow:to_server,established; http.method; content:"POST"; http.header; content:"Content-Length: "; fast_pattern; threshold:type threshold, track by_dst, count 20, seconds 60; classtype:denial-service; sid:6026; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP Slow POST Attack"; flow:to_server,established; http.method; content:"POST"; http.header; content:" соответственно-Length: "; fast_pattern; threshold:type threshold, track by_dst, count 20, seconds 60; classtype:denial-service; sid:6027; rev:1;)
+
+# === DNS-Based DDoS Attacks (DNS Amplification) ===
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"DDOS DNS Amplification Attack"; dns.query; content:"ANY"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6028; rev:1;)
+alert dns $HOME_NET any -> $HOME_NET 53 (msg:"DDOS Internal DNS Amplification"; dns.query; content:"ANY"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6029; rev:1;)
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"DDOS DNS Flood Attempt"; dns.query; content:"|00|"; fast_pattern; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6030; rev:1;)
+alert dns $HOME_NET any -> $HOME_NET 53 (msg:"DDOS Internal DNS Flood"; dns.query; content:"|00|"; fast_pattern; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6031; rev:1;)
+
+# === Application-Layer DDoS Attacks ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP User-Agent Flood"; flow:to_server,established; http.user_agent; content:"bot"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6032; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP User-Agent Flood"; flow:to_server,established; http.user_agent; content:"bot"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6033; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP Malformed Request"; flow:to_server,established; http.method; content:"GET"; http.uri; content:"|00|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6034; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP Malformed Request"; flow:to_server,established; http.method; content:"GET"; http.uri; content:"|00|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6035; rev:1;)
+
+# === Other Protocol-Based DDoS Attacks ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 23 (msg:"DDOS Telnet Flood Attempt"; flow:to_server; content:"login:"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6036; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET 23 (msg:"DDOS Internal Telnet Flood"; flow:to_server; content:"login:"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6037; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"DDOS SSH Flood Attempt"; flow:to_server; content:"SSH-"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6038; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"DDOS Internal SSH Flood"; flow:to_server; content:"SSH-"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6039; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"DDOS FTP Flood Attempt"; flow:to_server; content:"USER "; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6040; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET 21 (msg:"DDOS Internal FTP Flood"; flow:to_server; content:"USER "; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6041; rev:1;)
+
+# === Emerging DDoS Threats ===
+alert udp $EXTERNAL_NET any -> $HOME_NET 11211 (msg:"DDOS Memcached Amplification Attack"; content:"|00 00|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6042; rev:1;)
+alert udp $HOME_NET any -> $HOME_NET 11211 (msg:"DDOS Internal Memcached Amplification"; content:"|00 00|"; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6043; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP PSH-ACK Flood"; flow:to_server; flags:PA,12; threshold:type threshold, track by_dst, count 150, seconds 10; classtype:denial-service; sid:6044; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP PSH-ACK Flood"; flow:to_server; flags:PA,12; threshold:type threshold, track by_dst, count 150, seconds 10; classtype:denial-service; sid:6045; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS HTTP Range Attack"; flow:to_server,established; http.header; content:"Range: bytes="; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6046; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal HTTP Range Attack"; flow:to_server,established; http.header; content:"Range: bytes="; fast_pattern; threshold:type threshold, track by_dst, count 50, seconds 10; classtype:denial-service; sid:6047; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DDOS TCP Fragmented Packet Flood"; flow:to_server; fragbits:M; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6048; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"DDOS Internal TCP Fragmented Packet Flood"; flow:to_server; fragbits:M; threshold:type threshold, track by_dst, count 100, seconds 10; classtype:denial-service; sid:6049; rev:1;)

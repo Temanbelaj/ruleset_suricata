@@ -1,0 +1,33 @@
+# =============================================================================
+# XSS (CROSS-SITE SCRIPTING) RULES (SID: 3000-3999)
+# =============================================================================
+
+# Basic XSS Detection
+alert http any any -> $HOME_NET any (msg:"XSS Basic Script Tag Detected"; http.uri; content:"<script"; nocase; classtype:web-application-attack; sid:3001; rev:1;)
+
+# XSS with JavaScript
+alert http any any -> $HOME_NET any (msg:"XSS JavaScript Injection Detected"; http.uri; content:"javascript:"; nocase; classtype:web-application-attack; sid:3002; rev:1;)
+
+# XSS with OnLoad Event
+alert http any any -> $HOME_NET any (msg:"XSS OnLoad Event Detected"; http.uri; content:"onload="; nocase; classtype:web-application-attack; sid:3003; rev:1;)
+
+# XSS with OnClick Event
+alert http any any -> $HOME_NET any (msg:"XSS OnClick Event Detected"; http.uri; content:"onclick="; nocase; classtype:web-application-attack; sid:3004; rev:1;)
+
+# XSS with Alert Function
+alert http any any -> $HOME_NET any (msg:"XSS Alert Function Detected"; http.uri; content:"alert("; nocase; classtype:web-application-attack; sid:3005; rev:1;)
+
+# XSS with Document.Cookie
+alert http any any -> $HOME_NET any (msg:"XSS Document Cookie Access"; http.uri; content:"document.cookie"; nocase; classtype:web-application-attack; sid:3006; rev:1;)
+
+# XSS via POST Data
+alert http any any -> $HOME_NET any (msg:"XSS in POST Data"; http.request_body; content:"<script"; nocase; classtype:web-application-attack; sid:3007; rev:1;)
+
+# XSS with IMG Tag
+alert http any any -> $HOME_NET any (msg:"XSS IMG Tag Injection"; http.uri; content:"<img"; nocase; content:"onerror="; nocase; distance:0; within:100; classtype:web-application-attack; sid:3008; rev:1;)
+
+# XSS with SVG Tag
+alert http any any -> $HOME_NET any (msg:"XSS SVG Tag Injection"; http.uri; content:"<svg"; nocase; content:"onload="; nocase; distance:0; within:100; classtype:web-application-attack; sid:3009; rev:1;)
+
+# XSS with Iframe
+alert http any any -> $HOME_NET any (msg:"XSS Iframe Injection"; http.uri; content:"<iframe"; nocase; classtype:web-application-attack; sid:3010; rev:1;)

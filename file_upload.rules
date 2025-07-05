@@ -1,0 +1,15 @@
+#Rule untuk mendeteksi upload file dengan ekstensi berbahaya
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Possible Malicious File Upload - Dangerous File Extension"; flow:to_server,established; http.method; content:"POST"; http.request_body; content:"filename="; pcre:"/filename="[^"]+.(php|php5|phtml|exe|sh|py|pl|asp|aspx|jsp|js|bat|cmd)"/i"; filestore; sid:41; rev:1; classtype:web-application-attack;)
+
+#Rule untuk mendeteksi tipe MIME berbahaya dalam upload
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Possible Malicious File Upload - Suspicious MIME Type"; flow:to_server,established; http.method; content:"POST"; http.header; content:"Content-Type: multipart/form-data"; http.request_body; content:"Content-Type: "; pcre:"/Content-Type: (application/x-php|application/octet-stream|text/x-shellscript|application/x-msdownload)/i"; filestore; sid:42; rev:1; classtype:web-application-attack;)
+
+#Rule untuk mendeteksi upload file dengan ukuran besar
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Possible File Upload DoS - Large File Size"; flow:to_server,established; http.method; content:"POST"; http.request_body; content:"Content-Length: "; pcre:"/Content-Length: \d{7,}/"; sid:43; rev:1; classtype:attempted-dos;)
+
+#Rule untuk mendeteksi upload dengan parameter mencurigakan
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Possible Malicious File Upload - Suspicious Parameter"; flow:to_server,established; http.method; content:"POST"; http.request_body; pcre:"/filename="[^"]+.(php|exe|sh|py|pl|asp|aspx|jsp|js|bat|cmd)"/i"; filestore; sid:44; rev:1; classtype:web-application-attack;)

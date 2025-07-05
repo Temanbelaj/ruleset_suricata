@@ -1,0 +1,77 @@
+# =================================================================
+# == Ruleset Deteksi Serangan File Upload (v2.3 - COMPATIBLE)    ==
+# == Author: Partner Coding                                      ==
+# == Total Aturan: 50                                            ==
+# == SID Mulai: 40000                                            ==
+# =================================================================
+
+# ... (Aturan SID 40000 hingga 40036 tidak diubah, tetap sama seperti sebelumnya) ...
+# Saya akan langsung menampilkan bagian yang diubah untuk mempersingkat.
+# Salin dan tempel seluruh blok kode di bawah ini untuk menggantikan file lama Anda.
+
+# =================================================================
+# Kategori: Deteksi Web Shell Populer Berdasarkan Konten
+# =================================================================
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - c99 shell signature"; flow:established,to_server; http.request_body; content:"if(isset($_POST[\"cmd\"]))"; fast_pattern; content:"|73 79 73 74 65 6d 28 24 5f 50 4f 53 54 5b 22 63 6d 64 22 5d 29 3b|"; classtype:web-application-attack; sid:40000; rev:3;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - r57 shell signature"; flow:established,to_server; http.request_body; content:"<title>r57shell</title>"; fast_pattern; content:"uname -a"; classtype:web-application-attack; sid:40001; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - WSO (Web Shell by Obrez) signature"; flow:established,to_server; http.request_body; content:"FilesMan"; content:"SecInfo"; content:"Console"; content:"Logout"; fast_pattern; classtype:web-application-attack; sid:40002; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - B374K shell signature"; flow:established,to_server; http.request_body; content:"<title>b374k"; fast_pattern; content:"id_user"; classtype:web-application-attack; sid:40003; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - China Chopper signature (eval)"; flow:established,to_server; http.request_body; content:"eval(base64_decode($_POST["; fast_pattern; classtype:web-application-attack; sid:40004; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - Alfa Shell signature"; flow:established,to_server; http.request_body; content:"ALFA TEAM"; content:"shell_path"; content:"<title>Alfa Shell</title>"; fast_pattern; classtype:web-application-attack; sid:40005; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - Azenis Shell signature"; flow:established,to_server; http.request_body; content:"<STYLE>BODY{background-color: #444\; color: #E0E0E0\;}</STYLE>"; fast_pattern; classtype:web-application-attack; sid:40006; rev:2;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM WEB SHELL Upload Attempt - Sadrazam shell signature"; flow:established,to_server; http.request_body; content:"<title>Sadrazam Shell</title>"; fast_pattern; classtype:web-application-attack; sid:40007; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Double Extension (php.jpg)"; flow:established,to_server; http.header; content:"filename="; content:".php.jpg"; fast_pattern; classtype:web-application-attack; sid:40008; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Double Extension (php.png)"; flow:established,to_server; http.header; content:"filename="; content:".php.png"; fast_pattern; classtype:web-application-attack; sid:40009; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Double Extension (asp.jpg)"; flow:established,to_server; http.header; content:"filename="; content:".asp.jpg"; fast_pattern; classtype:web-application-attack; sid:40010; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Null Byte Injection (%00)"; flow:established,to_server; http.header; content:"filename="; content:".php%00"; fast_pattern; classtype:web-application-attack; sid:40011; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Fake Image Content-Type with PHP content"; flow:established,to_server; http.header; content:"Content-Type: image/jpeg"; http.request_body; content:"<?php"; fast_pattern; classtype:web-application-attack; sid:40012; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Fake Image Content-Type with ASP content"; flow:established,to_server; http.header; content:"Content-Type: image/gif"; http.request_body; content:"<%="; fast_pattern; classtype:web-application-attack; sid:40013; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Alternative PHP Extension (.phtml)"; flow:established,to_server; http.header; content:"filename="; content:".phtml"; fast_pattern; classtype:web-application-attack; sid:40014; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Alternative PHP Extension (.php5)"; flow:established,to_server; http.header; content:"filename="; content:".php5"; fast_pattern; classtype:web-application-attack; sid:40015; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - Capitalized Extension (.PHP)"; flow:established,to_server; http.header; content:"filename="; content:".PHP"; fast_pattern; classtype:web-application-attack; sid:40016; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Bypass Attempt - LFI to RFI via Upload"; flow:established,to_server; http.uri; content:"/proc/self/fd/"; fast_pattern; classtype:web-application-attack; sid:40017; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (passthru)"; flow:established,to_server; http.request_body; content:"passthru($_GET["; fast_pattern; classtype:web-application-attack; sid:40018; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (shell_exec)"; flow:established,to_server; http.request_body; content:"shell_exec($_REQUEST["; fast_pattern; classtype:web-application-attack; sid:40019; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (system)"; flow:established,to_server; http.request_body; content:"system($_POST["; fast_pattern; classtype:web-application-attack; sid:40020; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (base64_decode + eval)"; flow:established,to_server; http.request_body; content:"eval(base64_decode("; fast_pattern; classtype:web-application-attack; sid:40021; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (move_uploaded_file)"; flow:established,to_server; http.request_body; content:"move_uploaded_file($_FILES["; fast_pattern; classtype:web-application-attack; sid:40022; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic Webshell Content (fwrite + fopen)"; flow:established,to_server; http.request_body; content:"fwrite(fopen("; fast_pattern; classtype:web-application-attack; sid:40023; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic ASP Webshell Content (Execute)"; flow:established,to_server; http.request_body; content:"Execute(Request.Item["; fast_pattern; classtype:web-application-attack; sid:40024; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Generic JSP Webshell Content (Runtime.getRuntime().exec)"; flow:established,to_server; http.request_body; content:"Runtime.getRuntime().exec"; fast_pattern; classtype:web-application-attack; sid:40025; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Polyglot File (JPG+PHP)"; flow:established,to_server; http.request_body; content:"|FF D8 FF E0|"; depth:4; content:"<?php"; distance:0; fast_pattern; classtype:web-application-attack; sid:40026; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Apache Struts2 CVE-2017-5638 RCE Attempt"; flow:established,to_server; http.header; content:"Content-Type"; content:"%{(#_='multipart/form-data')"; fast_pattern; classtype:web-application-attack; sid:40027; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD WordPress Plugin Unauthenticated Upload Pattern"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/wp-admin/admin-ajax.php"; http.request_body; content:"action="; content:"upload"; fast_pattern; classtype:web-application-attack; sid:40028; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Joomla JCE Unauthenticated Upload Attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/index.php?option=com_jce&task=plugin&plugin=imgmanager&file=imgmanager&method=form"; fast_pattern; classtype:web-application-attack; sid:40029; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD FCKeditor Arbitrary File Upload"; flow:established,to_server; http.uri; pcre:"/fckeditor\/.+upload/i"; http.header; content:"filename="; content:".php"; fast_pattern; classtype:web-application-attack; sid:40030; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Telerik UI CVE-2019-18935 RCE Attempt"; flow:established,to_server; http.uri; content:"Telerik.Web.UI.WebResource.axd"; content:"type=rau"; fast_pattern; classtype:web-application-attack; sid:40031; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Oracle WebLogic CVE-2020-14882 RCE Attempt"; flow:established,to_server; http.uri; content:"/console/images/%252E%252E%252Fconsole.portal"; fast_pattern; classtype:web-application-attack; sid:40032; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Upload of .exe file"; flow:established,to_server; app-layer-protocol:ftp; content:"STOR "; nocase; content:".exe"; nocase; fast_pattern; classtype:policy-violation; sid:40033; rev:2;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Upload of .dll file"; flow:established,to_server; app-layer-protocol:ftp; content:"STOR "; nocase; content:".dll"; nocase; fast_pattern; classtype:policy-violation; sid:40034; rev:2;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Upload of .sh script"; flow:established,to_server; app-layer-protocol:ftp; content:"STOR "; nocase; content:".sh"; nocase; fast_pattern; classtype:policy-violation; sid:40035; rev:2;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FTP Data Transfer of PE File"; flow:established,from_server; app-layer-protocol:ftp-data; file.data; content:"This program cannot be run in DOS mode"; fast_pattern; classtype:policy-violation; sid:40036; rev:2;)
+
+# =================================================================
+# Kategori: Deteksi Upload File Berbahaya Non-HTTP (COMPATIBILITY-FIX)
+# Deskripsi: Aturan SMB ini dimodifikasi untuk kompatibilitas
+# dengan Suricata versi lama.
+# =================================================================
+# COMPATIBILITY-FIX: Menghapus keyword modern dan menggunakan content match biasa.
+alert smb $HOME_NET any -> $HOME_NET any (msg:"CUSTOM SMB Write of .exe file (Lateral Movement)"; flow:to_server,established; content:".exe"; classtype:trojan-activity; sid:40037; rev:4;)
+# COMPATIBILITY-FIX: Menghapus keyword modern dan menggunakan content match biasa.
+alert smb $HOME_NET any -> $HOME_NET any (msg:"CUSTOM SMB Write of .ps1 script (Lateral Movement)"; flow:to_server,established; content:".ps1"; classtype:trojan-activity; sid:40038; rev:4;)
+# COMPATIBILITY-FIX: Menghapus keyword modern dan menggunakan content match biasa.
+alert smb $HOME_NET any -> $HOME_NET any (msg:"CUSTOM SMB Write of web shell file (Lateral Movement)"; flow:to_server,established; content:".php"; classtype:trojan-activity; sid:40039; rev:4;)
+
+# =================================================================
+# Kategori: Aturan Tambahan dan Kebijakan
+# =================================================================
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Suspicious file upload to /tmp directory"; flow:established,to_server; http.uri; pcre:"/upload/i"; http.request_body; content:"/tmp/"; fast_pattern; classtype:bad-unknown; sid:40040; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Executable file upload attempt"; flow:established,to_server; http.header; content:"filename="; content:".exe"; fast_pattern; classtype:policy-violation; sid:40041; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD DLL file upload attempt"; flow:established,to_server; http.header; content:"filename="; content:".dll"; fast_pattern; classtype:policy-violation; sid:40042; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD VBS script upload attempt"; flow:established,to_server; http.header; content:"filename="; content:".vbs"; fast_pattern; classtype:policy-violation; sid:40043; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD JAR file upload attempt"; flow:established,to_server; http.header; content:"filename="; content:".jar"; fast_pattern; classtype:policy-violation; sid:40044; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Obfuscated content in multipart form-data"; flow:established,to_server; http.header; content:"Content-Disposition: form-data\;"; http.request_body; content:"base64"; fast_pattern; classtype:bad-unknown; sid:40045; rev:2;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Very long filename in upload"; flow:established,to_server; http.header; content:"filename="; isdataat:100,relative; classtype:bad-unknown; sid:40046; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Suspicious use of 'Content-Type: application/octet-stream' for scripts"; flow:established,to_server; http.header; content:"Content-Type: application/octet-stream"; content:".php"; classtype:bad-unknown; sid:40047; rev:2;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD Uploading file with CMD characters in name"; flow:established,to_server; http.header; content:"filename="; content:"&"; content:"|7c|"; classtype:bad-unknown; sid:40048; rev:2;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CUSTOM FILE UPLOAD PHP file masquerading as image in body"; flow:established,to_server; http.request_body; content:"Content-Type: image/png"; content:"<?php"; fast_pattern; classtype:web-application-attack; sid:40049; rev:1;)
