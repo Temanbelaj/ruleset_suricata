@@ -1,0 +1,7 @@
+alert http any any -> any any (msg:"Malware C2 - Suspicious POST /7wih/"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/7wih/"; nocase; classtype:trojan-activity; sid:7005; rev:1;)
+
+alert http any any -> any any (msg:"Malware C2 - rurubu.travel POST"; flow:to_server,established; http.host; content:"rurubu.travel"; http.uri; content:"/7wih/"; nocase; classtype:trojan-activity; sid:7006; rev:1;)
+
+alert http any any -> any any (msg:"Malware Suspicious User-Agent Windows Phone 8.1"; flow:to_server,established; http.user_agent; content:"Windows Phone 8.1"; nocase; classtype:trojan-activity; sid:7007; rev:1;)
+
+alert http any any -> any any (msg:"Malware Data Exfiltration Large POST"; flow:to_server,established; http.method; content:"POST"; http.header; content:"Content-Length|3A| 1676"; nocase; classtype:exfiltration; sid:7008; rev:1;)
